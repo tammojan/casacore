@@ -21,8 +21,8 @@ endif()
 set(Python_FIND_VERSION 2)
 set(PythonInterp_FIND_VERSION_MAJOR 2)
 find_package(Python REQUIRED)
+find_package(pybind11 REQUIRED)
 if (PYTHONINTERP_FOUND)
-    find_package(Boost REQUIRED COMPONENTS python)
     find_package (NUMPY REQUIRED)
 
     # copy the variables to their final destination
@@ -33,17 +33,11 @@ if (PYTHONINTERP_FOUND)
 
     set(PYTHON2_LIBRARIES ${PYTHON_LIBRARIES} PARENT_SCOPE)
     set(PYTHON2_NUMPY_INCLUDE_DIRS ${NUMPY_INCLUDE_DIRS} PARENT_SCOPE)
-    set(PYTHON2_Boost_LIBRARIES ${Boost_LIBRARIES} PARENT_SCOPE)
-    set(PYTHON2_Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
-    set(PYTHON2_Boost_PYTHON_LIBRARY_RELEASE ${Boost_PYTHON_LIBRARY_RELEASE} PARENT_SCOPE)
     set(PYTHON2_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} PARENT_SCOPE)
 
     # to access the variables here we also need to set them in the local scope
     set(PYTHON2_LIBRARIES ${PYTHON_LIBRARIES} )
     set(PYTHON2_NUMPY_INCLUDE_DIRS ${NUMPY_INCLUDE_DIRS} )
-    set(PYTHON2_Boost_LIBRARIES ${Boost_LIBRARIES} )
-    set(PYTHON2_Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} )
-    set(PYTHON2_Boost_PYTHON_LIBRARY_RELEASE ${Boost_PYTHON_LIBRARY_RELEASE} )
     set(PYTHON2_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} )
 
     # Remove cached variable to not confuse user
@@ -53,20 +47,15 @@ if (PYTHONINTERP_FOUND)
     unset(FIND_PACKAGE_MESSAGE_DETAILS_PythonLibs CACHE)
 endif(PYTHONINTERP_FOUND)
 
-
-include_directories (${PYTHON2_Boost_INCLUDE_DIRS} ${PYTHON2_NUMPY_INCLUDE_DIRS} ${PYTHON2_INCLUDE_DIRS})
+find_package(pybind11 REQUIRED)
+pybind11_add_module(fibmod Converters/PycTammo.cc)
+include_directories (${PYTHON2_NUMPY_INCLUDE_DIRS} ${PYTHON2_INCLUDE_DIRS})
 
 add_library (casa_python
-Converters/PycArray.cc
-Converters/PycArrayNP.cc
-Converters/PycBasicData.cc
-Converters/PycExcp.cc
-Converters/PycImport.cc
-Converters/PycRecord.cc
-Converters/PycValueHolder.cc
+Converters/PycTammo.cc
 )
 
-target_link_libraries (casa_python casa_casa ${PYTHON2_Boost_LIBRARIES} ${PYTHON2_LIBRARIES} ${CASACORE_ARCH_LIBS})
+target_link_libraries (casa_python casa_casa ${PYTHON2_LIBRARIES} ${CASACORE_ARCH_LIBS})
 
 install (TARGETS casa_python
 RUNTIME DESTINATION bin
