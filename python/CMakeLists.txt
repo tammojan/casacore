@@ -49,6 +49,7 @@ endif(PYTHONINTERP_FOUND)
 
 find_package(pybind11 REQUIRED)
 pybind11_add_module(fibmod Converters/PycTammo.cc)
+target_link_libraries(fibmod PRIVATE casa_casa)
 include_directories (${PYTHON2_NUMPY_INCLUDE_DIRS} ${PYTHON2_INCLUDE_DIRS})
 
 add_library (casa_python

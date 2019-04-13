@@ -30,6 +30,7 @@
 
 // include python first to avoid _POSIX_C_SOURCE redefined warnings
 #include <casacore/casa/BasicSL/String.h>
+#include <casacore/casa/Quanta.h>
 #include <pybind11/pybind11.h>
 
 #include <vector>
@@ -39,17 +40,27 @@
 #define IS_PY3K
 #endif
 
+namespace py = pybind11;
+
 // Define classes and functions to convert the basic data types and
 // containers to and from Python.
 
 namespace casacore { namespace python {
     int fibonacci(int x);
 
-    PYBIND11_MODULE(fibmod, m) {
-    m.doc() = "pybind11 example plugin for fibonacci";
+    void test () {
+      Quantity q(3,"m");
+    }
 
-    m.def("fibonacci", &fibonacci, "Fibonacci function using C++");
-}
+    PYBIND11_MODULE(fibmod, m) {
+      m.doc() = "pybind11 example plugin for fibonacci";
+
+      m.def("fibonacci", &fibonacci, "Fibonacci function using C++");
+
+      py::class_<Quantity>(m, "Quantity")
+        .def(py::init<int, const std::string &>())
+        .def("get_unit", &Quantity::getUnit);
+      }
 }
 }
 #endif
