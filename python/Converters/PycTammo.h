@@ -35,6 +35,7 @@
 
 #include <vector>
 #include <map>
+#include <string>
 
 #if PY_MAJOR_VERSION >= 3
 #define IS_PY3K
@@ -48,6 +49,10 @@ namespace py = pybind11;
 namespace casacore { namespace python {
     int fibonacci(int x);
 
+    const std::string& getQuantityUnit(const Quantity& q) {
+      return q.getUnit();
+    }
+
     void test () {
       Quantity q(3,"m");
     }
@@ -59,7 +64,7 @@ namespace casacore { namespace python {
 
       py::class_<Quantity>(m, "Quantity")
         .def(py::init<int, const std::string &>())
-        .def("get_unit", &Quantity::getUnit);
+        .def("get_unit", &getQuantityUnit);
       }
 }
 }
