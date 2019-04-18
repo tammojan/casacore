@@ -46,6 +46,47 @@ namespace py = pybind11;
 // Define classes and functions to convert the basic data types and
 // containers to and from Python.
 
+namespace pybind11 { namespace detail {
+    template <> struct type_caster<casacore::String> {
+    public:
+        PYBIND11_TYPE_CASTER(casacore::String, _("String"));
+
+        /**
+         * Conversion part 1 (Python->C++): convert a PyObject into a String
+         * instance or return false upon failure. The second argument
+         * indicates whether implicit conversions should be applied.
+         */
+        bool load(handle src, bool) {
+            /* Extract PyObject from handle */
+            PyObject *source = src.ptr();
+            /* Try converting into a Python integer value */
+            PyObject *temp_bytes = PyUnicode_AsEncodedString(source, "ASCII", "strict"); // Owned reference
+            if (!temp_bytes)
+                return false;
+            char* str_value;
+            str_value = PyBytes_AS_STRING(temp_bytes);
+            str_value = strdup(str_value);
+            value = casacore::String(value);
+            Py_DECREF(temp_bytes);
+            /* Ensure return code was OK (to avoid out-of-range errors etc) */
+            return !(str_value == 0 && !PyErr_Occurred());
+        }
+
+        /**
+         * Conversion part 2 (C++ -> Python): convert an String instance into
+         * a Python object. The second and third arguments are used to
+         * indicate the return value policy and parent object (for
+         * ``return_value_policy::reference_internal``) and are generally
+         * ignored by implicit casters.
+         */
+        static handle cast(casacore::String src,
+                           return_value_policy /* policy */,
+                           handle /* parent */) {
+            return PyBytes_FromString(src.c_str());
+        }
+    };
+}} // namespace pybind11::detail
+
 namespace casacore { namespace python {
     int fibonacci(int x);
 
@@ -64,7 +105,7 @@ namespace casacore { namespace python {
 
       py::class_<Quantity>(m, "Quantity")
         .def(py::init<int, const std::string &>())
-        .def("get_unit", &getQuantityUnit);
+        .def("get_unit", &Quantity::getUnit);
       }
 }
 }
