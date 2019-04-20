@@ -90,10 +90,6 @@ namespace pybind11 { namespace detail {
 namespace casacore { namespace python {
     int fibonacci(int x);
 
-    const std::string& getQuantityUnit(const Quantity& q) {
-      return q.getUnit();
-    }
-
     void test () {
       Quantity q(3,"m");
     }

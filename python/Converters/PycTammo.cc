@@ -29,8 +29,5 @@
 #include <casacore/python/Converters/PycTammo.h>
 
 namespace casacore { namespace python {
-  int fibonacci (int x ) {
-    return x+42;
-  }
 }
 }
